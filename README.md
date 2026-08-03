@@ -22,6 +22,48 @@ The system uses a LangGraph-based workflow with the following nodes:
 5. **Generate** - Produces final answers
 6. **Web Search** - Fallback for real-time information
 7. **General LLM** - Handles casual conversation and common knowledge
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         User Interface                          │
+│  ┌──────────────��───────────────────────────────────────��───┐  │
+│  │  Streamlit Web Application                               │  │
+│  │  • Chat Interface                                        │  │
+│  │  • Document Upload (PDF, TXT)                            │  │
+│  │  • Session Management                                    │  │
+│  └──────────────────────────────────────────────────────────��  │
+└───────────────────────────────────────────��─────────────────────┘
+                            ↓
+┌────────────────────────────────────────────────��────────────────┐
+│                       FastAPI Backend                           │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  REST API Endpoints                                      │  │
+│  │  • POST /rag/query                                       │  │
+│  │  • POST /rag/documents/upload                            │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    LangGraph Orchestration                      │
+│  ┌─────────┐  ┌──────────┐  ┌─────────┐  ┌──────────┐         │
+│  │ Query   │→ │ Classify │→ │ Router  │→ │ Pipeline │         │
+│  │ Analyze │  │ Query    │  │ Output  │  │ Exec     │         │
+│  └─────────┘  └──────────┘  └───��─────┘  └──────────┘         │
+└─────────────────────────────────────────────────────────────────┘
+                            ↓
+        ┌───────��──────────┬────────────────��─┬────────────────┐
+        ↓                  ↓                  ↓                ↓
+   ┌─────────┐       ┌──────────┐      ┌────────────┐   ┌──────────┐
+   │ Retriever│      │ General  │      │ Web Search │   │ Response │
+   │ (Index)  │      │ LLM      │      │ (Tavily)   │   │ Generator│
+   └─────────┘       └──────────┘      └────────────┘   └──────────┘
+        ↓                  ↓                  ↓                ↓
+        └──────────────────┬──────────────────┬────────────────┘
+                           ↓
+            ┌─────────────────────────────────┐
+            │   Response to User               │
+            └─────────────────────────────────┘
+```
+
 
 ## Requirements
 
@@ -133,6 +175,4 @@ Adaptive_RAG/
 4. **Retrieval & Grading**: Document queries use ReAct agent; results are graded for relevance
 5. **Answer Generation**: Final answers are generated and verified for faithfulness
 
-## License
 
-MIT
